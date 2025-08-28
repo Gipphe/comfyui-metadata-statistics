@@ -100,7 +100,7 @@ class RecordModels:
             if node.get("type", "") == "Power Lora Loader (rgthree)":
                 print("found lora loader")
                 print(json.dumps(node))
-                for value in node.get("widget_values", []):
+                for value in node.get("widgets_values", []):
                     if isinstance(value, dict) and value.get("lora") is not None and value.get("on", False):
                         print("found lora widget value")
                         lora_name = value.get("lora")
@@ -118,7 +118,7 @@ class RecordModels:
 
             elif node.get("type", "") == "CheckpointLoaderSimple":
                 print("found checkpoint loader")
-                widget_values = node.get("widget_values", [])
+                widget_values = node.get("widgets_values", [])
                 checkpoint_name = widget_values[0] if len(widget_values) > 0 else None
                 if checkpoint_name is None:
                     print("No checkpoint name")
