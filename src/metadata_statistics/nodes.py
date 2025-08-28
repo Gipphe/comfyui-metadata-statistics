@@ -94,21 +94,13 @@ class RecordModels:
             "checkpoints": {},
         }
 
-        print("num nodes: " + str(len(extra_pnginfo.get("workflow", {}).get("nodes", []))))
         for node in extra_pnginfo.get("workflow", {}).get("nodes", []):
-            print("node type: " + node.get("type"))
             if node.get("type", "") == "Power Lora Loader (rgthree)":
-                print("found lora loader")
-                print(json.dumps(node))
                 for value in node.get("widgets_values", []):
                     if isinstance(value, dict) and value.get("lora") is not None and value.get("on", False):
-                        print("found lora widget value")
                         lora_name = value.get("lora")
                         if lora_name is None:
-                            print("No lora name")
-                            print(json.dumps(value))
                             continue
-                        print("lora name: " + lora_name)
                         lora_strength = value.get("strength")
                         curr = res["loras"].get(lora_name, {"count": 0, "uses": []})
                         now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
@@ -117,14 +109,10 @@ class RecordModels:
                         res["loras"][lora_name] = curr
 
             elif node.get("type", "") == "CheckpointLoaderSimple":
-                print("found checkpoint loader")
                 widget_values = node.get("widgets_values", [])
                 checkpoint_name = widget_values[0] if len(widget_values) > 0 else None
                 if checkpoint_name is None:
-                    print("No checkpoint name")
-                    print(json.dumps(node))
                     continue
-                print(f"checkpoint name: {checkpoint_name}")
                 curr = res["checkpoints"].get(checkpoint_name, {"count": 0, "uses": []})
                 curr["count"] = curr.get("count", 0) + 1
                 now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
@@ -141,27 +129,12 @@ class RecordModels:
             db = json.load(f)
             f.close()
 
-            final = self.merge_dicts(db, res)
+            final = merge_dicts(db, res)
             f = open(out_path, "w+")
             json.dump(final, f)
             f.close()
 
         return (image,)
-
-    def merge_dicts(self, this, that):
-        res = copy.deepcopy(this)
-        for key in this.keys() & that.keys():
-            old = res[key]
-            new = that[key]
-            if isinstance(old, dict) and isinstance(new, dict):
-                res[key] = self.merge_dicts(old, new)
-            elif (isinstance(old, numbers.Number) and isinstance(new, numbers.Number)) or (isinstance(old, list) and isinstance(new, list)):
-                res[key] = old + new
-            else:
-                print("WARN: old and new types did not match, or were not of expected types: " + type(old) + "," + type(new))
-                res[key] = new
-
-        return res
 
     """
         The node will always be re executed if any of the inputs change but
@@ -182,3 +155,21 @@ NODE_CLASS_MAPPINGS = {"RecordModels": RecordModels}
 
 # A dictionary that contains the friendly/humanly readable titles for the nodes
 NODE_DISPLAY_NAME_MAPPINGS = {"RecordModels": "Record Models"}
+
+
+def merge_dicts(this, that):
+    res = copy.deepcopy(this)
+    for key in that.keys():
+        old = res.get(key)
+        new = that.get(key)
+        if old is None:
+            res[key] = new
+        elif isinstance(old, dict) and isinstance(new, dict):
+            res[key] = merge_dicts(old, new)
+        elif (isinstance(old, numbers.Number) and isinstance(new, numbers.Number)) or (isinstance(old, list) and isinstance(new, list)):
+            res[key] = old + new
+        else:
+            print("WARN: old and new types did not match, or were not of expected types: " + type(old) + "," + type(new))
+            res[key] = new
+
+    return res
