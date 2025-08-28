@@ -62,7 +62,7 @@ class RecordModels:
         """
         return {
             "required": {
-                "image": ("Image", {"tooltip": "Image pass-through input"}),
+                "image": ("IMAGE", {"tooltip": "Image pass-through input"}),
                 "out_file": (
                     "STRING",
                     {
