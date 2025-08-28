@@ -94,6 +94,7 @@ class RecordModels:
             "checkpoints": {},
         }
 
+        print("extre_pnginfo: " + type(extra_pnginfo).__name__)
         for val in extra_pnginfo.values():
             if val.get("class_type", "") == "Power Lora Loader (rgthree)":
                 for key, input in val.get("inputs", {}).items():
