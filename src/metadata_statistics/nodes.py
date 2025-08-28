@@ -94,7 +94,7 @@ class RecordModels:
             "checkpoints": {},
         }
 
-        print("num nodes: " + len(extra_pnginfo.get("workflow", {}).get("nodes", [])))
+        print("num nodes: " + str(len(extra_pnginfo.get("workflow", {}).get("nodes", []))))
         for node in extra_pnginfo.get("workflow", {}).get("nodes", []):
             print("node type: " + node.get("type"))
             if node.get("type", "") == "Power Lora Loader (rgthree)":
