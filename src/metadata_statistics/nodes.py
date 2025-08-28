@@ -95,23 +95,27 @@ class RecordModels:
         }
 
         print("extre_pnginfo: \n" + json.dumps(extra_pnginfo))
-        for val in extra_pnginfo.values():
-            if val.get("class_type", "") == "Power Lora Loader (rgthree)":
-                for key, input in val.get("inputs", {}).items():
-                    if key.startswith("lora_") and input.get("on", False):
-                        lora_name = input.get("lora", "")
-                        curr = res["loras"].get(lora_name, {"count": 0, "when": []})
+        for node in extra_pnginfo.get("workflow", {}).get("nodes", []):
+            if node.get("type", "") == "Power Lora Loader (rgthree)":
+                for value in node.get("widget_values", []):
+                    if isinstance(value, dict) and value.get("lora") is not None and value.get("on", False):
+                        lora_name = value.get("lora", "")
+                        lora_strength = value.get("strength", 0.0)
+                        curr = res["loras"].get(lora_name, {"count": 0, "uses": []})
+                        now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
+                        curr["uses"] = curr.get("uses", []) + [{"time": now, "strength": lora_strength}]
                         curr["count"] = curr.get("count", 0) + 1
-                        curr["when"] = curr.get("when", []) + [
-                            datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
-                        ]
                         res["loras"][lora_name] = curr
 
-            elif val.get("class_type", "") == "CheckpointLoaderSimple":
-                checkpoint_name = val.get("inputs", {}).get("ckpt_name", "")
-                curr = res["checkpoints"].get(checkpoint_name, {"count": 0, "when": []})
+            elif node.get("type", "") == "CheckpointLoaderSimple":
+                widget_values = node.get("widget_values", [])
+                checkpoint_name = widget_values[0] if len(widget_values) > 0 else None
+                if checkpoint_name is None:
+                    continue
+                curr = res["checkpoints"].get(checkpoint_name, {"count": 0, "uses": []})
                 curr["count"] = curr.get("count", 0) + 1
-                curr["when"] = curr.get("when", []) + [datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()]
+                now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
+                curr["uses"] = curr.get("uses", []) + [{"time": now}]
                 res["checkpoints"][checkpoint_name] = curr
 
         out_path = f"{root_dir}\\{out_file}"
