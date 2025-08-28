@@ -111,10 +111,10 @@ class RecordModels:
                 curr["when"] = curr.get('when', []) + [ datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat() ]
                 res["checkpoints"][checkpoint_name] = curr
 
-        out_path = f"{root_dir}/{out_file}"
+        out_path = f"{root_dir}\\{out_file}"
         if not os.path.isfile(out_path):
             os.makedirs(os.path.dirname(out_path), exist_ok=True)
-            with open(out_path) as f:
+            with open(out_path, 'w+') as f:
                 f.write(json.dumps(res))
         else:
             f = open(out_path, "r+")
