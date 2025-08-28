@@ -99,11 +99,14 @@ class RecordModels:
             print("node type: " + node.get("type"))
             if node.get("type", "") == "Power Lora Loader (rgthree)":
                 print("found lora loader")
+                print(json.dumps(node))
                 for value in node.get("widget_values", []):
                     if isinstance(value, dict) and value.get("lora") is not None and value.get("on", False):
                         print("found lora widget value")
                         lora_name = value.get("lora")
                         if lora_name is None:
+                            print("No lora name")
+                            print(json.dumps(value))
                             continue
                         print("lora name: " + lora_name)
                         lora_strength = value.get("strength")
@@ -117,9 +120,11 @@ class RecordModels:
                 print("found checkpoint loader")
                 widget_values = node.get("widget_values", [])
                 checkpoint_name = widget_values[0] if len(widget_values) > 0 else None
-                print("checkpoint name: " + checkpoint_name)
                 if checkpoint_name is None:
+                    print("No checkpoint name")
+                    print(json.dumps(node))
                     continue
+                print(f"checkpoint name: {checkpoint_name}")
                 curr = res["checkpoints"].get(checkpoint_name, {"count": 0, "uses": []})
                 curr["count"] = curr.get("count", 0) + 1
                 now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
