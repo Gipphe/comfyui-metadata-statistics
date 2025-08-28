@@ -95,20 +95,20 @@ class RecordModels:
         }
 
         for val in extra_pnginfo.values():
-            if val["class_type"] == "Power Lora Loader (rgthree)":
-                for key, input in val["inputs"].items():
-                    if key.startswith("lora_") and input["on"]:
-                        lora_name = input["lora"]
+            if val.get("class_type", "") == "Power Lora Loader (rgthree)":
+                for key, input in val.get("inputs", {}).items():
+                    if key.startswith("lora_") and input.get("on", False):
+                        lora_name = input.get("lora", "")
                         curr = res["loras"].get(lora_name, {"count": 0, "when": []})
-                        curr["count"] += 1
-                        curr["when"] += datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
+                        curr['count'] = curr.get("count", 0) + 1
+                        curr["when"] = curr.get('when', []) + [ datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat() ]
                         res["loras"][lora_name] = curr
 
-            elif val["class_type"] == "CheckpointLoaderSimple":
-                checkpoint_name = val["inputs"]["ckpt_name"]
+            elif val.get("class_type", "") == "CheckpointLoaderSimple":
+                checkpoint_name = val.get("inputs", {}).get("ckpt_name", "")
                 curr = res["checkpoints"].get(checkpoint_name, {"count": 0, "when": []})
-                curr["count"] += 1
-                curr["when"] += datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
+                curr['count'] = curr.get("count", 0) + 1
+                curr["when"] = curr.get('when', []) + [ datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat() ]
                 res["checkpoints"][checkpoint_name] = curr
 
         out_path = f"{root_dir}/{out_file}"
