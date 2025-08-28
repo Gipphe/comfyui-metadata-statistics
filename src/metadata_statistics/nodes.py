@@ -94,13 +94,19 @@ class RecordModels:
             "checkpoints": {},
         }
 
-        print("extre_pnginfo: \n" + json.dumps(extra_pnginfo))
+        print("num nodes: " + len(extra_pnginfo.get("workflow", {}).get("nodes", [])))
         for node in extra_pnginfo.get("workflow", {}).get("nodes", []):
+            print("node type: " + node.get("type"))
             if node.get("type", "") == "Power Lora Loader (rgthree)":
+                print("found lora loader")
                 for value in node.get("widget_values", []):
                     if isinstance(value, dict) and value.get("lora") is not None and value.get("on", False):
-                        lora_name = value.get("lora", "")
-                        lora_strength = value.get("strength", 0.0)
+                        print("found lora widget value")
+                        lora_name = value.get("lora")
+                        if lora_name is None:
+                            continue
+                        print("lora name: " + lora_name)
+                        lora_strength = value.get("strength")
                         curr = res["loras"].get(lora_name, {"count": 0, "uses": []})
                         now = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
                         curr["uses"] = curr.get("uses", []) + [{"time": now, "strength": lora_strength}]
@@ -108,8 +114,10 @@ class RecordModels:
                         res["loras"][lora_name] = curr
 
             elif node.get("type", "") == "CheckpointLoaderSimple":
+                print("found checkpoint loader")
                 widget_values = node.get("widget_values", [])
                 checkpoint_name = widget_values[0] if len(widget_values) > 0 else None
+                print("checkpoint name: " + checkpoint_name)
                 if checkpoint_name is None:
                     continue
                 curr = res["checkpoints"].get(checkpoint_name, {"count": 0, "uses": []})
