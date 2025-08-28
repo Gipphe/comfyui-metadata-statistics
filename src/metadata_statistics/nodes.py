@@ -169,7 +169,7 @@ def merge_dicts(this, that):
         elif (isinstance(old, numbers.Number) and isinstance(new, numbers.Number)) or (isinstance(old, list) and isinstance(new, list)):
             res[key] = old + new
         else:
-            print("WARN: old and new types did not match, or were not of expected types: " + type(old) + "," + type(new))
+            print("RecordModels: WARN: old and new types did not match, or were not of expected types: " + type(old) + "," + type(new))
             res[key] = new
 
     return res
