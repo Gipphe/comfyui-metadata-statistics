@@ -95,27 +95,33 @@ class RecordModels:
         }
 
         print("extre_pnginfo: " + type(extra_pnginfo).__name__)
+        print(extra_pnginfo.keys())
         for val in extra_pnginfo.values():
+            print("val: " + type(val).__name__)
+            print(val.keys())
+            print("class_type: " + val.get("class_type", ""))
             if val.get("class_type", "") == "Power Lora Loader (rgthree)":
                 for key, input in val.get("inputs", {}).items():
                     if key.startswith("lora_") and input.get("on", False):
                         lora_name = input.get("lora", "")
                         curr = res["loras"].get(lora_name, {"count": 0, "when": []})
-                        curr['count'] = curr.get("count", 0) + 1
-                        curr["when"] = curr.get('when', []) + [ datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat() ]
+                        curr["count"] = curr.get("count", 0) + 1
+                        curr["when"] = curr.get("when", []) + [
+                            datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
+                        ]
                         res["loras"][lora_name] = curr
 
             elif val.get("class_type", "") == "CheckpointLoaderSimple":
                 checkpoint_name = val.get("inputs", {}).get("ckpt_name", "")
                 curr = res["checkpoints"].get(checkpoint_name, {"count": 0, "when": []})
-                curr['count'] = curr.get("count", 0) + 1
-                curr["when"] = curr.get('when', []) + [ datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat() ]
+                curr["count"] = curr.get("count", 0) + 1
+                curr["when"] = curr.get("when", []) + [datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()]
                 res["checkpoints"][checkpoint_name] = curr
 
         out_path = f"{root_dir}\\{out_file}"
         if not os.path.isfile(out_path):
             os.makedirs(os.path.dirname(out_path), exist_ok=True)
-            with open(out_path, 'w+') as f:
+            with open(out_path, "w+") as f:
                 f.write(json.dumps(res))
         else:
             f = open(out_path, "r+")
