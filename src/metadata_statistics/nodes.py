@@ -1,14 +1,11 @@
 import copy
 import datetime
-import inspect
 import json
 import numbers
 import os
 from inspect import cleandoc
 
-from server import PromptServer
-
-root_dir = os.path.dirname(inspect.getfile(PromptServer))
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
 
 
 class RecordModels:
@@ -58,7 +55,7 @@ class RecordModels:
                 * Key field_name (`string`): Name of a entry-point method's argument
                 * Value field_config (`tuple`):
                     + First value is a string indicate the type of field or a list for selection.
-                    + Secound value is a config for type "INT", "STRING" or "FLOAT".
+                    + Second value is a config for type "INT", "STRING" or "FLOAT".
         """
         return {
             "required": {
@@ -119,7 +116,7 @@ class RecordModels:
                 curr["uses"] = curr.get("uses", []) + [{"time": now}]
                 res["checkpoints"][checkpoint_name] = curr
 
-        out_path = f"{root_dir}\\{out_file}"
+        out_path = f"{root_dir}/{out_file}"
         if not os.path.isfile(out_path):
             os.makedirs(os.path.dirname(out_path), exist_ok=True)
             with open(out_path, "w+") as f:
